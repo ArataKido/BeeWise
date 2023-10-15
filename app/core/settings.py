@@ -11,7 +11,7 @@ import logging
 
 
 class Settings:
-    db_url: str = "postgresql+psycopg2://postgres:postgresPass@database_beewise:5432/quiz"
+    db_url: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/quiz"
     db_name: str = "quiz"
     db_user: Optional[str] = "postgres"
     db_host: Optional[str] = "database_beewise"

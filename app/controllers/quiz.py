@@ -6,6 +6,13 @@ from app.services.schema.quiz import QuizQuestionSchema
 from app.core.settings import Settings
 
 
+def make_request(questions_num: int):
+    response = requests.get(url=f"https://jservice.io/api/random?count={questions_num}")
+    if response is not None and response.status_code != 400 or 404:
+        return response.json()
+    return False
+
+
 def model_to_schema(question: QuizQuestionModel) -> QuizQuestionSchema:
     return QuizQuestionSchema(
         question_id=question.question_id,
@@ -16,7 +23,7 @@ def model_to_schema(question: QuizQuestionModel) -> QuizQuestionSchema:
 
 
 @Settings.get_session()
-def select(question: dict, session: Session) -> int:
+def exists(question: dict, session: Session) -> int:
     question_exists = (
         session.query(QuizQuestionModel).filter_by(question_id=question["id"]).count()
         > 0
@@ -49,13 +56,10 @@ def select_last_saved(session: Session) -> QuizQuestionSchema:
 
 def add_questions(questions: list):
     for question in questions:
-        if select(question) is False:
+        question_exists = exists(question)
+        if not question_exists:
             create(question)
+        if question_exists:
+            new_question = make_request(1)
+            add_questions(new_question)
     return select_last_saved()
-
-
-def make_request(questions_num: int):
-    response = requests.get(url=f"https://jservice.io/api/random?count={questions_num}")
-    if response is not None and response.status_code != 400 or 404:
-        return response.json()
-    return False

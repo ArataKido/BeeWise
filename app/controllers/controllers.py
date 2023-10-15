@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 # class DatabaseManager(AbstractPlugin):
 #     class Config:
 #         ENGINE: Pool = None

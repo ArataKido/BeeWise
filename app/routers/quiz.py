@@ -9,7 +9,8 @@ router = APIRouter()
 @router.post("/bring_questions")
 def parce_questions(
     questions_num: int,
-) -> QuizQuestionSchema:
+):
+    print("this0")
     if questions := make_request(questions_num=questions_num):
         return add_questions(questions)
     return questions_num
