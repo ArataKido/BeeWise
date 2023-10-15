@@ -1,22 +1,17 @@
 version: '3.10'
 services:
   ####################
-  # backend:
-  #   build: ./app
-  #   command: "gunicorn store.wsgi:application --bind 0.0.0.0:8000"
-  #   restart: always
-  #   env_file:
-  #     - ./app/.env
-  #   volumes:
-  #     - static_volume:/home/app/web/backend_static
-  #     - media_volume:/home/app/web/backend_media
-  #   ports:
-  #     - "8000:8000"
-  #   networks:
-  #     - app_network
-  #   depends_on:
-  #     - database
-  #     - redis
+  app:
+    build: .
+    command: sh -c "alembic upgrade head && 
+                    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    restart: always
+    ports:
+      - "8000:8000"  # Expose FastAPI on port 8000
+    depends_on:
+      - database
+    networks:
+      - app_network
   ####################
   database:
     container_name: database_beewise
@@ -30,6 +25,8 @@ services:
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     networks:
       - app_network
+    ports:
+      - "5432"
   ##################
   # nginx:
   #   image: 'jc21/nginx-proxy-manager:latest'
@@ -45,10 +42,7 @@ services:
   #     - media_volume:/home/app/web/backend_media
   #   networks:
   #     - app_network
-
 volumes:
-  static_volume:
-  media_volume:
   postgres_data:
 networks:
   app_network:
