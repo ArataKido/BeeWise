@@ -1,9 +1,5 @@
-from sqlalchemy.orm import Session
 import requests
-
-from app.services.models.quiz import QuizQuestionModel
-from app.services.schema.quiz import QuizQuestionSchema
-from app.core.settings import Settings
+from app.services.orm.crud import create, question_exists, model_to_schema
 
 
 def make_request(questions_num: int):
@@ -13,53 +9,15 @@ def make_request(questions_num: int):
     return False
 
 
-def model_to_schema(question: QuizQuestionModel) -> QuizQuestionSchema:
-    return QuizQuestionSchema(
-        question_id=question.question_id,
-        question=question.question,
-        answer=question.answer,
-        created_at=question.created_at,
-    )
-
-
-@Settings.get_session()
-def exists(question: dict, session: Session) -> int:
-    question_exists = (
-        session.query(QuizQuestionModel).filter_by(question_id=question["id"]).count()
-        > 0
-    )
-    return question_exists
-
-
-@Settings.get_session()
-def create(question: dict, session: Session):
-    query = QuizQuestionModel(
-        question_id=question["id"],
-        question=question["question"],
-        answer=question["answer"],
-        created_at=question["created_at"],
-        updated_at=question["updated_at"],
-    )
-    session.add(query)
-    session.commit()
-
-
-@Settings.get_session()
-def select_last_saved(session: Session) -> QuizQuestionSchema:
-    last_question = (
-        session.query(QuizQuestionModel)
-        .order_by(QuizQuestionModel.saved_at.desc())
-        .first()
-    )
-    return model_to_schema(last_question)
-
-
-def add_questions(questions: list):
+async def add_questions(questions: list):
+    last_created = None
     for question in questions:
-        question_exists = exists(question)
-        if not question_exists:
-            create(question)
-        if question_exists:
+        _question_exists = await question_exists(question_id=question["id"])
+        if not _question_exists:
+            last_created = await create(**question)
+        if _question_exists:
             new_question = make_request(1)
-            add_questions(new_question)
-    return select_last_saved()
+            await add_questions(new_question)
+    if last_created:
+        return await model_to_schema(last_created)
+    return last_created

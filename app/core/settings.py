@@ -1,6 +1,6 @@
 # from pydantic_settings import BaseSettings
 from typing import Optional
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
 from pydantic import ValidationError
 
 from fastapi import HTTPException
@@ -11,25 +11,26 @@ import logging
 
 
 class Settings:
-    db_url: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/quiz"
+    db_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/quiz"
     db_name: str = "quiz"
     db_user: Optional[str] = "postgres"
     db_host: Optional[str] = "database_beewise"
     db_port: Optional[int or str] = 5432
     db_password: Optional[str] = "postgresPass"
 
-    session: Session = None
+    engine: AsyncEngine
+    Session: AsyncSession
 
     @classmethod
     def get_session(cls):
         def decorator(func):
-            def wrapper(*args, **kwargs):
+            async def wrapper(*args, **kwargs):
                 try:
                     if kwargs.get("session", None):
-                        return func(*args, **kwargs)
+                        return await func(*args, **kwargs)
                     else:
-                        with cls.session() as session:
-                            result = func(*args, session=session, **kwargs)
+                        async with cls.Session() as session:
+                            result = await func(*args, session=session, **kwargs)
                     return result
                 except ValidationError as e:
                     raise_exception(e)
