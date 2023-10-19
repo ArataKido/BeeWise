@@ -3,7 +3,9 @@ from app.services.orm.crud import create, question_exists, model_to_schema
 
 
 def make_request(questions_num: int):
-    response = requests.get(url=f"https://jservice.io/api/random?count={questions_num}")
+    response = requests.get(
+        url=f"https://jservice.io/api/random?count={questions_num}", timeout=60
+    )
     if response is not None and response.status_code != 400 or 404:
         return response.json()
     return False

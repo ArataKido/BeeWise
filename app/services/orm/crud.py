@@ -40,7 +40,7 @@ async def create(session: AsyncSession, **values: Any) -> QuizQuestionModel:
         .returning(QuizQuestionModel)
     )
     result = (await session.execute(stmt)).scalars().first()
-    # await session.commit()
+    await session.commit()
     return result
 
 

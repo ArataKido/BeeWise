@@ -1,7 +1,8 @@
 [tool.ruff]
 
 # Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F"]
+select = ["E", "F", "W", "S", "B", "T20", "C90", "ERA"]
+ignore = [ "E722", "E731", "N805"]
 
 line-length = 88
 
@@ -27,4 +28,6 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "lib"
 ]
+

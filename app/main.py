@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 from app.core.settings import Settings
-from app.core.db import start_async_engine, make_async_session
 from app.routers import quiz
+
 
 app = FastAPI(
     title="Quiz Microservice",
@@ -27,15 +28,18 @@ app.add_middleware(
 
 app.include_router(quiz.router, prefix="/quiz")
 
+
 @app.on_event("startup")
 async def create_connections_pool():
-    engine = await start_async_engine()
-    session = await make_async_session(engine=engine)
-
-    Settings.engine = engine
-    Settings.Session = session
+    await Settings.start(
+        DATABASE_HOST=os.getenv("DATABASE_HOST"),
+        DATABASE_NAME=os.getenv("DATABASE_NAME"),
+        DATABASE_PASSWORD=os.getenv("DATABASE_PASSWORD"),
+        DATABASE_USER=os.getenv("DATABASE_USER"),
+        DATABASE_URL=os.getenv("DATABASE_URL"),
+        DATABASE_PORT=os.getenv("DATABASE_PORT"),
+    )
 
 
 # @app.on_event("shutdown")
 # async def close_asyncpg_session():
-#     await Settings.engine.dispose()

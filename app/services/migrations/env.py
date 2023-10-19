@@ -13,7 +13,7 @@ from app.core.settings import Settings
 target_metadata = Base.metadata
 
 config = context.config  # type: ignore
-config.set_main_option("sqlalchemy.url", Settings.db_url)
+config.set_main_option("sqlalchemy.url", Settings.DATABASE_URL)
 
 fileConfig(config.config_file_name)
 
