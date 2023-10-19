@@ -1,13 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 from app.core.settings import Settings
-from app.core.db import start_async_engine, make_async_session
 from app.routers import quiz
-
-# from app.core.configs import settings, api_token_manager
-
-# from plugins.cache.base import CacheManagerBase
 
 
 app = FastAPI(
@@ -32,29 +28,18 @@ app.add_middleware(
 
 app.include_router(quiz.router, prefix="/quiz")
 
-# settings.api_token = api_token_manager.encode(
-#     {'name': app.title}
-
 
 @app.on_event("startup")
 async def create_connections_pool():
-    # await DatabaseManager.start(
-    #     settings.POSTGRES_DB,
-    #     settings.POSTGRES_USER,
-    #     settings.POSTGRES_PASSWORD,
-    #     settings.POSTGRES_HOST,
-    # )
-    engine = start_async_engine()
-    session = make_async_session(engine=engine)
-
-    Settings.session = session
+    await Settings.start(
+        DATABASE_HOST=os.getenv("DATABASE_HOST"),
+        DATABASE_NAME=os.getenv("DATABASE_NAME"),
+        DATABASE_PASSWORD=os.getenv("DATABASE_PASSWORD"),
+        DATABASE_USER=os.getenv("DATABASE_USER"),
+        DATABASE_URL=os.getenv("DATABASE_URL"),
+        DATABASE_PORT=os.getenv("DATABASE_PORT"),
+    )
 
 
 # @app.on_event("shutdown")
-# async def close_asyncio_client():
-#     await settings.aiohttp_session.close()
-
-
-# @app.on_event("shutdown")
-# async def close_connections_pool():
-#     await Configs.CONNECT_POOL.close()
+# async def close_asyncpg_session():

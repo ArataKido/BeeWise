@@ -5,7 +5,7 @@ import os
 from abc import ABC, abstractclassmethod
 
 
-class AbstractPlugin(ABC):
+class AbsctractSettings(ABC):
     @abstractclassmethod
     async def start(cls):
         """
@@ -38,7 +38,7 @@ class AbstractPlugin(ABC):
             if os.environ.get(var):
                 args.append(os.environ.get(var))
             elif kwargs[var] is None:
-                args.append(getattr(cls.Config, var))
+                args.append(getattr(cls, var))
             else:
                 args.append(kwargs[var])
         return args

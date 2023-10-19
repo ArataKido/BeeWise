@@ -3,8 +3,9 @@ services:
   ####################
   app:
     build: .
-    command: sh -c "alembic upgrade head && 
-                    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 &&
+                    alembic upgrade head 
+                    "
     restart: always
     ports:
       - "8000:8000"  # Expose FastAPI on port 8000
@@ -12,6 +13,8 @@ services:
       - database
     networks:
       - app_network
+    env_file:
+      - .env
   ####################
   database:
     container_name: database_beewise
@@ -26,22 +29,7 @@ services:
     networks:
       - app_network
     ports:
-      - "5432"
-  ##################
-  # nginx:
-  #   image: 'jc21/nginx-proxy-manager:latest'
-  #   restart: unless-stopped
-  #   ports:
-  #     - '80:80'
-  #     - '81:81'
-  #     - '443:443'
-  #   volumes:
-  #     - ./data:/data
-  #     - ./letsencrypt:/etc/letsencrypt
-  #     - static_volume:/home/app/web/backend_static
-  #     - media_volume:/home/app/web/backend_media
-  #   networks:
-  #     - app_network
+      - ":5432"
 volumes:
   postgres_data:
 networks:
