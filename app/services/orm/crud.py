@@ -45,8 +45,6 @@ async def create(session: AsyncSession, **values: Any) -> QuizQuestionModel:
 
 
 @Settings.get_session()
-async def get(
-    model: QuizQuestionModel, session: AsyncSession, **values: Any
-) -> QuizQuestionModel:
+async def get(session: AsyncSession, **values: Any) -> QuizQuestionModel:
     stmt = select(QuizQuestionModel).where(**values)
     return (await session.execute(stmt)).scalars().first()

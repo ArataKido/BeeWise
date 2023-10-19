@@ -5,7 +5,7 @@ import os
 from abc import ABC, abstractclassmethod
 
 
-class AbstractPlugin(ABC):
+class AbsctractSettings(ABC):
     @abstractclassmethod
     async def start(cls):
         """

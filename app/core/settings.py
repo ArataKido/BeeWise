@@ -6,17 +6,19 @@ import logging
 
 
 from app.utils import raise_exception
-from app.controllers.base import AbstractPlugin
+from app.core.base import AbsctractSettings
 from app.core.db import make_async_session, start_async_engine
 
 
-class Settings(AbstractPlugin):
-    DATABASE_URL: str
-    DATABASE_NAME: str
-    DATABASE_USER: Optional[str]
-    DATABASE_HOST: Optional[str]
-    DATABASE_PORT: Optional[str | int]
-    DATABASE_PASSWORD: Optional[str]
+class Settings(AbsctractSettings):
+    DATABASE_URL: str = (
+        "postgresql+asyncpg://postgres:postgresPass@database_beewise:5432/quiz"
+    )
+    DATABASE_NAME: str = None
+    DATABASE_USER: Optional[str] = None
+    DATABASE_HOST: Optional[str] = None
+    DATABASE_PORT: Optional[str | int] = None
+    DATABASE_PASSWORD: Optional[str] = None
     engine: AsyncEngine
     Session: AsyncSession
 
@@ -31,11 +33,12 @@ class Settings(AbstractPlugin):
         DATABASE_URL: str = None,
     ) -> None:
         """
-        Firstly, try loads from envirement, then from function arguments,
-        then from plugun defaults.
+        Firstly, try loads from envirement, then from function arguments,`
+        then from settings defaults.
 
-        see plugins.AbsctractPlugin.loads_secrets for more
+        see plugins.AbsctractSettings.loads_secrets for more
         """
+
         (
             DATABASE_NAME,
             DATABASE_USER,
