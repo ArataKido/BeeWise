@@ -49,30 +49,22 @@ docker-compose down
 ```
 
 # TASKS
-- [x] С помощью Docker (предпочтительно - docker-compose) развернуть образ с любой опенсорсной СУБД (предпочтительно - PostgreSQL). Предоставить все необходимые скрипты и конфигурационные (docker/compose) файлы для развертывания СУБД, а также инструкции для подключения к ней. Необходимо обеспечить сохранность данных при рестарте контейнера (то есть - использовать volume-ы для хранения файлов СУБД на хост-машине.
+- [x] Using Docker (preferably - docker-compose), deploy the image with any opensource DBMS (preferably - PostgreSQL). Provide all necessary scripts and configuration (docker/compose) files to deploy the DBMS, as well as instructions for connecting to it. It is necessary to ensure data safety during container restart (i.e. - use volumes to store DBMS files on the host machine.
 
 
-- [x] Реализовать на Python3 простой веб сервис (с помощью FastAPI или Flask, например), выполняющий следующие функции:
-В сервисе должно быть реализовано REST API, принимающее на вход POST запросы с содержимым вида {"questions_num": integer}  ;
+- [x] Implement a simple web service in Python3 (using FastAPI or Flask, for example) that performs the following functions:
+The service should implement a REST API that accepts POST requests with content of the form {"questions_num": integer} ;
 
-- [x] После получения запроса сервис, в свою очередь, запрашивает с публичного API (англоязычные вопросы для викторин) https://jservice.io/api/random?count=1 указанное в полученном запросе количество вопросов.
-Далее, полученные ответы должны сохраняться в базе данных из п. 1, причем сохранена должна быть как минимум следующая информация (название колонок и типы данный можете выбрать сами, также можете добавлять свои колонки): 1. ID вопроса, 2. Текст вопроса, 3. Текст ответа, 4. - Дата создания вопроса. В случае, если в БД имеется такой же вопрос, к публичному API с викторинами должны выполняться дополнительные запросы до тех пор, пока не будет получен уникальный вопрос для викторины.
-Ответом на запрос из п.2.a должен быть предыдущей сохранённый вопрос для викторины. В случае его отсутствия - пустой объект.
 
-- - [x] В репозитории с заданием должны быть предоставлены инструкции по сборке докер-образа с сервисом из п. 2., его настройке и запуску. А также пример запроса к POST API сервиса.
-- - [x] Желательно, если при выполнении задания вы будете использовать docker-compose, SqlAalchemy,  пользоваться аннотацией типов.
-- - [x] С помощью Docker (предпочтительно - docker-compose) развернуть образ с любой опенсорсной СУБД (предпочтительно - PostgreSQL). Предоставить все необходимые скрипты и конфигурационные (docker/compose) файлы для развертывания СУБД, а также инструкции для подключения к ней. Необходимо обеспечить сохранность данных при рестарте контейнера (то есть - использовать volume-ы для хранения файлов СУБД на хост-машине.
-- - [x] Реализовать на Python3 простой веб сервис (с помощью FastAPI или Flask, например), выполняющий следующие функции:
-В сервисе должно быть реализовано REST API, принимающее на вход POST запросы с содержимым вида {"questions_num": integer}  ;
-- - [x] После получения запроса сервис, в свою очередь, запрашивает с публичного API (англоязычные вопросы для викторин) https://jservice.io/api/random?count=1 указанное в полученном запросе количество вопросов.
-Далее, полученные ответы должны сохраняться в базе данных из п. 1, причем сохранена должна быть как минимум следующая информация (название колонок и типы данный можете выбрать сами, также можете добавлять свои колонки): 1. ID вопроса, 2. Текст вопроса, 3. Текст ответа, 4. - Дата создания вопроса. 
-- - [x] В случае, если в БД имеется такой же вопрос, к публичному API с викторинами должны выполняться дополнительные запросы до тех пор, пока не будет получен уникальный вопрос для викторgины.
-- - [x] Ответом на запрос из п.2.a должен быть предыдущей сохранённый вопрос для викторины. В случае его отсутствия - пустой объект.
+- - [x] After receiving the request, the service, in turn, requests from the public API (English-language quiz questions) https://jservice.io/api/random?count=1 the number of questions specified in the received request.
+Further, the received answers should be stored in the database from item 1, and at least the following information should be stored (you can choose the name of columns and types of this column, you can also add your own columns): 1. Question ID, 2. Question text, 3. Answer text, 4. - Date the question was created. 
+- - [x] In case there is the same question in the database, additional queries should be made to the public API with quizzes until a unique quiz question is retrieved.
+- - [x] The answer to the query from 2.a must be the previous saved question for the quiz. If it is not present, it should be an empty object.
 
-- [x] В репозитории с заданием должны быть предоставлены инструкции по сборке докер-образа с сервисом из п. 2., его настройке и запуску. А также пример запроса к POST API сервиса.
+- [x] The repository with the assignment should provide instructions on how to build a docker image with the service from item 2., set it up and run it. And also an example of a request to POST API of the service.
 
-- [x] Желательно, если при выполнении задания вы будете использовать docker-compose, SqlAalchemy,  пользоваться аннотацией типов.
+- [x] It is desirable if you will use docker-compose, SqlAalchemy, use type annotation when performing the task.
 
 
 # TODO
-- [ ] add .env var export to settings
+- [X] add .env var export to settings
