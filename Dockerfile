@@ -1,7 +1,3 @@
-###############
-#   BUILDER   #
-###############
-
 # Получаем официальное изображение из Docker-hub
 FROM python:3.11-slim as builder
 
@@ -12,16 +8,12 @@ WORKDIR /usr/src/app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Линтер и автотесты \
 RUN pip install --upgrade pip
-# RUN pip install flake8
-COPY . .
 # Установка зависимости в сборщик
 COPY ./requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
 # Проверка на стандарт написания кода
 COPY . .
-# RUN flake8 --ignore=E501,F401 .
 
 # Получаем официальное изображение из Docker-hub
 FROM python:3.11-slim

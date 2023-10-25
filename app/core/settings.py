@@ -1,81 +1,58 @@
-from fastapi import HTTPException
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings
 from typing import Optional
-from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
-from pydantic import ValidationError
-import logging
+from sqlalchemy.ext.asyncio import (
+    async_sessionmaker,
+    create_async_engine,
+    AsyncSession,
+    AsyncEngine,
+)
+import os
+from app.core.types import DbHostname, DbName, DbPassword, DbPort, DbUser
 
 
-from app.utils import raise_exception
-from app.core.base import AbsctractSettings
-from app.core.db import make_async_session, start_async_engine
+class DatabaseSettings(BaseModel):
+    db_hostname: DbHostname
+    db_port: DbPort
+    db_name: DbName
+    db_password: DbPassword
+    db_user: DbUser
 
 
-class Settings(AbsctractSettings):
-    DATABASE_URL: str = (
-        "postgresql+asyncpg://postgres:postgresPass@database_beewise:5432/quiz"
+class Database(BaseSettings):
+    sub_model: DatabaseSettings = DatabaseSettings()
+
+    @staticmethod
+    def dsn(params) -> str:
+        return f"postgresql+asyncpg://{params.db_user}:{params.db_password}@{params.db_hostname}:{params.db_port}/{params.db_name}"
+
+    async def async_engine(self, database_url: str) -> AsyncEngine:
+        return create_async_engine(database_url)
+
+    async def async_session(self, engine: Optional[AsyncEngine] = None) -> AsyncSession:
+        if engine is None:
+            engine = await self.async_engine(self.dsn(self.sub_model))
+
+        return async_sessionmaker(engine, expire_on_commit=False)
+
+
+async def get_db() -> AsyncSession:
+    db_settings = DatabaseSettings(
+        db_name=os.environ["DB_NAME"],
+        db_user=os.environ["DB_USER"],
+        db_password=os.environ["DB_PASSWORD"],
+        db_hostname=os.environ["DB_HOSTNAME"],
+        db_port=os.environ["DB_PORT"],
     )
-    DATABASE_NAME: str = None
-    DATABASE_USER: Optional[str] = None
-    DATABASE_HOST: Optional[str] = None
-    DATABASE_PORT: Optional[str | int] = None
-    DATABASE_PASSWORD: Optional[str] = None
-    engine: AsyncEngine
-    Session: AsyncSession
+    db = Database(sub_model=db_settings)
 
-    @classmethod
-    async def start(
-        cls,
-        DATABASE_NAME: str = None,
-        DATABASE_USER: str = None,
-        DATABASE_PASSWORD: str = None,
-        DATABASE_HOST: str = None,
-        DATABASE_PORT: str = None,
-        DATABASE_URL: str = None,
-    ) -> None:
-        """
-        Firstly, try loads from envirement, then from function arguments,`
-        then from settings defaults.
+    Session = await db.async_session()
 
-        see plugins.AbsctractSettings.loads_secrets for more
-        """
-
-        (
-            DATABASE_NAME,
-            DATABASE_USER,
-            DATABASE_PASSWORD,
-            DATABASE_HOST,
-            DATABASE_PORT,
-            DATABASE_URL,
-        ) = cls.loads_secrets(
-            DATABASE_NAME=DATABASE_NAME,
-            DATABASE_USER=DATABASE_USER,
-            DATABASE_PASSWORD=DATABASE_PASSWORD,
-            DATABASE_HOST=DATABASE_HOST,
-            DATABASE_PORT=DATABASE_PORT,
-            DATABASE_URL=DATABASE_URL,
-        )
-
-        cls.engine = await start_async_engine(cls.DATABASE_URL)
-        cls.Session = await make_async_session(cls.engine)
-
-    @classmethod
-    def get_session(cls):
-        def decorator(func):
-            async def wrapper(*args, **kwargs):
-                try:
-                    if kwargs.get("session", None):
-                        return await func(*args, **kwargs)
-                    else:
-                        async with cls.Session() as session:
-                            result = await func(*args, session=session, **kwargs)
-                    return result
-                except ValidationError as e:
-                    raise_exception(e)
-                except HTTPException as e:
-                    raise_exception(e)
-                except Exception as e:
-                    logging.exception(e)
-
-            return wrapper
-
-        return decorator
+    async with Session() as session:
+        try:
+            yield session
+        except Exception as se:
+            await session.rollback()
+            raise se
+        finally:
+            await session.close()
