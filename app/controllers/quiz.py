@@ -12,10 +12,12 @@ def make_request(questions_num: int):
     return False
 
 
-async def add_questions(questions: list, session:AsyncSession):
+async def add_questions(questions: list, session: AsyncSession):
     last_created = None
     for question in questions:
-        _question_exists = await question_exists(question_id=question["id"], session=session)
+        _question_exists = await question_exists(
+            question_id=question["id"], session=session
+        )
         if not _question_exists:
             last_created = await create(session=session, **question)
         if _question_exists:

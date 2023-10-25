@@ -1,6 +1,6 @@
 from sqlalchemy.sql.expression import select, insert, exists
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Any, Annotated
+from typing import Any
 from fastapi import Depends
 
 from app.services.models.quiz import QuizQuestionModel
@@ -24,7 +24,9 @@ async def model_to_schema(question: AsyncSession) -> QuizQuestionSchema:
     )
 
 
-async def question_exists(question_id: int, session: AsyncSession = Depends(get_db)) -> bool:
+async def question_exists(
+    question_id: int, session: AsyncSession = Depends(get_db)
+) -> bool:
     stmt = exists(
         select(QuizQuestionModel).where(QuizQuestionModel.id == question_id)
     ).select()
@@ -32,18 +34,18 @@ async def question_exists(question_id: int, session: AsyncSession = Depends(get_
     return result
 
 
-async def create(session: AsyncSession = Depends(get_db), **values: Any) -> QuizQuestionModel:
+async def create(
+    session: AsyncSession = Depends(get_db), **values: Any
+) -> QuizQuestionModel:
     dumped_values = QuizQuestionSchema(**values).model_dump()
-    stmt = (
-        insert(QuizQuestionModel)
-        .values(dumped_values)
-        .returning(QuizQuestionModel)
-    )
+    stmt = insert(QuizQuestionModel).values(dumped_values).returning(QuizQuestionModel)
     result = (await session.execute(stmt)).scalars().first()
     await session.commit()
     return result
 
 
-async def get(session: AsyncSession = Depends(get_db), **values: Any) -> QuizQuestionModel:
+async def get(
+    session: AsyncSession = Depends(get_db), **values: Any
+) -> QuizQuestionModel:
     stmt = select(QuizQuestionModel).where(**values)
     return (await session.execute(stmt)).scalars().first()

@@ -1,6 +1,5 @@
-from fastapi import HTTPException
-from pydantic import ValidationError, BaseModel
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings
 from typing import Optional
 from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
@@ -12,14 +11,12 @@ import os
 from app.core.types import DbHostname, DbName, DbPassword, DbPort, DbUser
 
 
-
 class DatabaseSettings(BaseModel):
-    db_hostname: DbHostname 
-    db_port: DbPort 
-    db_name: DbName 
+    db_hostname: DbHostname
+    db_port: DbPort
+    db_name: DbName
     db_password: DbPassword
     db_user: DbUser
-
 
 
 class Database(BaseSettings):
@@ -31,7 +28,6 @@ class Database(BaseSettings):
 
     async def async_engine(self, database_url: str) -> AsyncEngine:
         return create_async_engine(database_url)
-
 
     async def async_session(self, engine: Optional[AsyncEngine] = None) -> AsyncSession:
         if engine is None:
@@ -46,7 +42,7 @@ async def get_db() -> AsyncSession:
         db_user=os.environ["DB_USER"],
         db_password=os.environ["DB_PASSWORD"],
         db_hostname=os.environ["DB_HOSTNAME"],
-        db_port=os.environ["DB_PORT"]
+        db_port=os.environ["DB_PORT"],
     )
     db = Database(sub_model=db_settings)
 
@@ -54,7 +50,7 @@ async def get_db() -> AsyncSession:
 
     async with Session() as session:
         try:
-                yield session
+            yield session
         except Exception as se:
             await session.rollback()
             raise se

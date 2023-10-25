@@ -11,8 +11,7 @@ router = APIRouter()
 
 @router.post("/parce_questions")
 async def parce_questions(
-    questions_num: int,
-    session: AsyncSession = Depends(get_db)
+    questions_num: int, session: AsyncSession = Depends(get_db)
 ) -> QuizQuestionSchema | None:
     """questions_num cant be more than 100!"""
     if not questions_num > 100:
