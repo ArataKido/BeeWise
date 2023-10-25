@@ -38,6 +38,7 @@ Make sure you have the following tools installed on your system:
 5. Once the containers are up and running, you can access your application at:
 
     - Backend: [http://localhost:8000](http://localhost:8000)
+    - Backend-Swagger: [http://localhost:8000/docs](http://localhost:8000/docs)
     - Database: The database container is not directly accessible but can be reached by other containers within the same Docker network.
 
 ## Stopping the Application
