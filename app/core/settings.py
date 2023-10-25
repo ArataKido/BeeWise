@@ -20,7 +20,7 @@ class DatabaseSettings(BaseModel):
 
 
 class Database(BaseSettings):
-    sub_model: DatabaseSettings = DatabaseSettings()
+    sub_model: DatabaseSettings
 
     @staticmethod
     def dsn(params) -> str:
