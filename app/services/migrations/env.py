@@ -1,4 +1,5 @@
 import asyncio
+import os
 from logging.config import fileConfig
 from typing import no_type_check
 
@@ -8,12 +9,19 @@ from sqlalchemy import engine_from_config, pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.services.models import Base
-from app.core.settings import Settings
+from app.core.settings import Database, DatabaseSettings
 
+db_settings = DatabaseSettings(
+        db_name=os.environ["DB_NAME"],
+        db_user=os.environ["DB_USER"],
+        db_password=os.environ["DB_PASSWORD"],
+        db_hostname=os.environ["DB_HOSTNAME"],
+        db_port=os.environ["DB_PORT"]
+    )
+db = Database(sub_model=db_settings)
 target_metadata = Base.metadata
-
 config = context.config  # type: ignore
-config.set_main_option("sqlalchemy.url", Settings.DATABASE_URL)
+config.set_main_option("sqlalchemy.url", db.dsn())
 
 fileConfig(config.config_file_name)
 
